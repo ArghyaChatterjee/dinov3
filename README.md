@@ -1,35 +1,257 @@
-🆕 [2025-09-17] :fire: DINOv3 backbones are now supported by the [PyTorch Image Models / timm](https://github.com/huggingface/pytorch-image-models/) library starting with version [1.0.20](https://github.com/huggingface/pytorch-image-models/releases/tag/v1.0.20)
+# DINOv3 
 
-[2025-08-29] DINOv3 backbones are [supported](https://huggingface.co/docs/transformers/model_doc/dinov3) by released versions of the Hugging Face [Transformers](https://huggingface.co/docs/transformers/index) library starting with version [4.56.0](https://github.com/huggingface/transformers/releases/tag/v4.56.0)
-
-[2025-08-14] DINOv3 backbones are now available in [Hugging Face Hub](https://huggingface.co/collections/facebook/dinov3-68924841bd6b561778e31009) and [supported](https://huggingface.co/docs/transformers/model_doc/dinov3) by the [development](https://github.com/huggingface/transformers/) version of the Hugging Face [Transformers](https://huggingface.co/docs/transformers/index) library
-
-# DINOv3 🦖🦖🦖
-
-**[Meta AI Research, FAIR](https://ai.meta.com/research/)**
-
-Oriane Siméoni, Huy V. Vo, Maximilian Seitzer, Federico Baldassarre, Maxime Oquab, <br/>
-Cijo Jose, Vasil Khalidov, Marc Szafraniec, Seungeun Yi, Michaël Ramamonjisoa, <br/>
-Francisco Massa, Daniel Haziza, Luca Wehrstedt, Jianyuan Wang, <br/>
-Timothée Darcet, Théo Moutakanni, Leonel Sentana, Claire Roberts, <br/>
-Andrea Vedaldi, Jamie Tolan, John Brandt, Camille Couprie, <br/>
-Julien Mairal, Hervé Jégou, Patrick Labatut, Piotr Bojanowski
-
-[ :scroll: [`Paper`](https://arxiv.org/abs/2508.10104)] [ :newspaper: [`Blog`](https://ai.meta.com/blog/dinov3-self-supervised-vision-model/)] [ :globe_with_meridians: [`Website`](https://ai.meta.com/dinov3/)] [ :book: [`BibTeX`](#citing-dinov3)]
-
-Reference PyTorch implementation and models for DINOv3. For details, see the **[DINOv3](https://arxiv.org/abs/2508.10104)** paper.
 
 ## Overview
 
 <div align="center">
-  <img width="1364" height="1024" alt="market" src="https://github.com/user-attachments/assets/1411f491-988e-49cb-95ae-d03fe6e3c268" />
+  <img width="500" height="500" alt="market" src="https://github.com/user-attachments/assets/1411f491-988e-49cb-95ae-d03fe6e3c268" />
 
   <i></em><b>High-resolution dense features.</b><br/>We visualize the cosine similarity maps obtained with DINOv3 output features<br/> between the patches marked with a red cross and all other patches.</i>
 </div>
 
 <br/>
 
-An extended family of versatile vision foundation models producing high-quality dense features and achieving outstanding performance on various vision tasks including outperforming the specialized state of the art across a broad range of settings, without fine-tuning
+An extended family of versatile vision foundation models producing high-quality dense features and achieving outstanding performance on various vision tasks including outperforming the specialized state of the art across a broad range of settings, without fine-tuning.
+
+
+## Installation
+
+The training and evaluation code requires PyTorch version >= 2.7.1 as well as a few other 3rd party packages. Note that the code has only been tested with the specified versions and also expects a Linux environment. To setup all the required dependencies for training and evaluation, please follow the instructions below:
+
+*[micromamba](https://mamba.readthedocs.io/en/latest/user_guide/micromamba.html)* **(Recommended)** - Clone the repository and then create and activate a `dinov3` conda environment using the provided environment definition:
+
+```shell
+micromamba env create -f conda.yaml
+micromamba activate dinov3
+```
+For Python Virtual Environment:
+```shell
+python3 -m venv dinov3_venv
+source dinov3_venv/bin/activate
+pip3 install --upgrade pip
+pip3 install -r requirements.txt
+```
+## Download the model
+For models, you have to download the model from the website (You have to give your credentials to download, can't download from browser with wget/curl):
+
+- <tr>
+      <td>ViT-L/16 distilled</td>
+      <td align="right">300M</td>
+      <td align="center">LVD-1689M</td>
+      <td align="center"><a href="https://ai.meta.com/resources/models-and-libraries/dinov3-downloads/">[link]</a></td>
+</tr>
+
+Once downloaded, you have to put the `dinov3_vitl16_pretrain_lvd1689m-8aa4cbdd.pth` model inside `~/.cache/torch/hub/checkpoints/` folder.
+
+## Run the model
+
+Run the segmentation demo model:
+```
+python demo_tracker.py \
+  --video left_seq.mp4 \
+  --mask door_knob_left_2001.png \
+  --out_dir ./dinov3_out \
+  --model dinov3_vitl16 \
+  --downscale 0.5 \
+  --topk 10 \
+  --temperature 0.07 \
+  --radius 1 \
+  --save_video
+```
+
+## Results
+
+<div align="center">
+  <img src="media/door_knob_left_2001.png" alt="Image Mask" width="400">
+  <img src="media/dinov3_overlay.gif" alt="Video" width="400">
+  <br>
+  <b>Input Mask + Video</b>
+  &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+  <b>Output Feature Tracked Video</b>
+</div>
+
+## Getting started
+
+Several notebooks are provided to get started applying DINOv3:
+- [PCA of patch features](notebooks/pca.ipynb): display the PCA of DINOv3 patch features on a foreground object (rainbow visualizations from the paper) [[Run in Google Colab]](https://colab.research.google.com/github/facebookresearch/dinov3/blob/main/notebooks/pca.ipynb)
+- [Foreground segmentation](notebooks/foreground_segmentation.ipynb): train a linear foreground segmentation model based on DINOv3 features [[Run in Google Colab]](https://colab.research.google.com/github/facebookresearch/dinov3/blob/main/notebooks/foreground_segmentation.ipynb)
+- [Dense and sparse matching](notebooks/dense_sparse_matching.ipynb): match patches from objects on two different images based on DINOv3 features [[Run in Google Colab]](https://colab.research.google.com/github/facebookresearch/dinov3/blob/main/notebooks/dense_sparse_matching.ipynb)
+- [Segmentation tracking](notebooks/segmentation_tracking.ipynb): video segmentation tracking using a non-parametric method based on DINOv3 features [[Run in Google Colab]](https://colab.research.google.com/github/facebookresearch/dinov3/blob/main/notebooks/segmentation_tracking.ipynb)
+
+## Data preparation
+
+### ImageNet-1k
+
+The root directory of the dataset should hold the following contents:
+
+- `<ROOT>/test/ILSVRC2012_test_00000001.JPEG`
+- `<ROOT>/test/[..]`
+- `<ROOT>/test/ILSVRC2012_test_00100000.JPEG`
+- `<ROOT>/train/n01440764/n01440764_10026.JPEG`
+- `<ROOT>/train/[...]`
+- `<ROOT>/train/n15075141/n15075141_9993.JPEG`
+- `<ROOT>/val/n01440764/ILSVRC2012_val_00000293.JPEG`
+- `<ROOT>/val/[...]`
+- `<ROOT>/val/n15075141/ILSVRC2012_val_00049174.JPEG`
+- `<ROOT>/labels.txt`
+
+The provided dataset implementation expects a few additional metadata files to be present under the extra directory:
+
+- `<EXTRA>/class-ids-TRAIN.npy`
+- `<EXTRA>/class-ids-VAL.npy`
+- `<EXTRA>/class-names-TRAIN.npy`
+- `<EXTRA>/class-names-VAL.npy`
+- `<EXTRA>/entries-TEST.npy`
+- `<EXTRA>/entries-TRAIN.npy`
+- `<EXTRA>/entries-VAL.npy`
+
+These metadata files can be generated (once) with the following lines of Python code:
+
+```python
+from dinov3.data.datasets import ImageNet
+
+for split in ImageNet.Split:
+    dataset = ImageNet(split=split, root="<ROOT>", extra="<EXTRA>")
+    dataset.dump_extra()
+```
+
+Note that the root and extra directories do not have to be distinct directories.
+
+### ImageNet-22k
+
+Please adapt the [dataset class](dinov3/data/datasets/image_net_22k.py) to match your local setup.
+
+<br />
+
+:warning: To execute the commands provided in the next sections for training and evaluation, the `dinov3` package should be included in the Python module search path, i.e. simply prefix the command to run with `PYTHONPATH=.`.
+
+## Training
+
+### Fast setup: training DINOv3 ViT-L/16 on ImageNet-1k
+
+Run DINOv3 pre-training on 4 H100-80GB nodes (32 GPUs) in a SLURM cluster environment with submitit:
+
+```shell
+ PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/train/train.py \
+  --nodes 4 \
+  --config-file dinov3/configs/train/vitl_im1k_lin834.yaml \
+  --output-dir <PATH/TO/OUTPUT/DIR> \
+  train.dataset_path=ImageNet22k:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET>
+```
+Training time is approximately 14 hours and the resulting checkpoint should reach 82.0% on k-NN eval and 83.5% on linear eval.
+
+The training code saves the weights of the teacher in the eval folder every 12500 iterations for evaluation.
+
+### Exact DINOv3 setup: training DINOv3 ViT-7B/16
+
+DINOv3 ViT-7B/16 is trained on a private dataset. The training involves 3 stages:
+- Pretraining
+- Gram anchoring
+- High resolution adaptation
+
+#### Pretraining
+
+Launch DINOV3 ViT-7B/16 pretraining on 32 nodes (256 GPUs) in a SLURM cluster environment with submitit.
+
+```shell
+PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/train/train.py \
+  --nodes 32 \
+  --config-file dinov3/configs/train/dinov3_vit7b16_pretrain.yaml \
+  --output-dir <PATH/TO/OUTPUT/DIR> \
+  train.dataset_path=<DATASET>:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET>
+```
+
+#### Gram anchoring
+
+```shell
+PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/train/train.py \
+  --nodes 32 \
+  --config-file dinov3/configs/train/dinov3_vit7b16_gram_anchor.yaml \
+  --output-dir <PATH/TO/OUTPUT/DIR> \
+  train.dataset_path=<DATASET>:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET> \
+  gram.ckpt=<PATH/TO/GRAM_TEACHER_FROM_PREVIOUS_STEP>   
+```
+
+#### High-resolution adaptation
+
+
+```shell
+PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/train/train.py \
+  --nodes 32 \
+  --config-file dinov3/configs/train/dinov3_vit7b16_high_res_adapt.yaml \
+  --output-dir <PATH/TO/OUTPUT/DIR> \
+  train.dataset_path=<DATASET>:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET> \
+  gram.ckpt=<PATH/TO/TEACHER_FROM_GRAM> \
+  student.resume_from_teacher_chkpt=<PATH/TO/TEACHER_FROM_GRAM>
+```
+
+## Multi-distillation 
+
+### Test setup:
+
+```shell
+PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/train/train.py \
+  --nodes 1 \
+  --config-file dinov3/configs/train/multi_distillation_test.yaml \
+  --output-dir <PATH/TO/OUTPUT/DIR> \
+  --multi-distillation \
+  train.dataset_path=<DATASET>:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET>
+```
+
+## Evaluation
+
+The training code regularly saves the teacher weights. In order to evaluate the model, run the following evaluation on a single node:
+
+
+### Logistic regression classification on ImageNet-1k
+
+```shell
+PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/eval/log_regression.py \
+  model.config_file=<PATH/TO/OUTPUT/DIR>/config.yaml \
+  model.pretrained_weights=<PATH/TO/OUTPUT/DIR>/teacher_checkpoint.pth \
+  output_dir=<PATH/TO/OUTPUT/DIR> \
+  train.dataset=ImageNet:split=TRAIN:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET> \
+  eval.test_dataset=ImageNet:split=VAL:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET>
+```
+
+### k-NN classification on ImageNet-1k
+
+```shell
+PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/eval/knn.py \
+  model.config_file=<PATH/TO/OUTPUT/DIR>/config.yaml \
+  model.pretrained_weights=<PATH/TO/OUTPUT/DIR>/teacher_checkpoint.pth \
+  output_dir=<PATH/TO/OUTPUT/DIR> \
+  train.dataset=ImageNet:split=TRAIN:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET> \
+  eval.test_dataset=ImageNet:split=VAL:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET>
+```
+
+### Linear classification with data augmentation on ImageNet-1k
+
+```shell
+PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/eval/linear.py \
+  model.config_file=<PATH/TO/OUTPUT/DIR>/config.yaml \
+  model.pretrained_weights=<PATH/TO/OUTPUT/DIR>/teacher_checkpoint.pth \
+  output_dir=<PATH/TO/OUTPUT/DIR> \
+  train.dataset=ImageNet:split=TRAIN:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET> \
+  train.val_dataset=ImageNet:split=VAL:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET>
+```
+
+
+### Text alignment on DINOv3 using dino.txt
+
+Text alignment can be done following the method from `dino.txt` aka [DINOv2 Meets Text](https://arxiv.org/abs/2412.16334).
+
+```shell
+PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/eval/text/train_dinotxt.py \
+   --nodes 4 \
+  # An example config for text alignment is here: dinov3/eval/text/configs/dinov3_vitl_text.yaml \ 
+  trainer_config_file="<PATH/TO/DINOv3/TEXT/CONFIG>" \
+  output-dir=<PATH/TO/OUTPUT/DIR>
+```
+Launching the above trains text alignment on 4 nodes with 8 gpus each (32 gpus in total).
+Please note that the text alignment model in the DINOv3 paper was trained on a private dataset and here we have given an example config in ```dinov3/eval/text/configs/dinov3_vitl_text.yaml``` using ```CocoCaptions``` dataset for illustration purposes.
+Please adapt the provided ```CocoCaptions``` dataset class, the dataset can be found [here](https://www.kaggle.com/datasets/nikhil7280/coco-image-caption)  
+
 
 ## Pretrained models
 
@@ -523,222 +745,4 @@ The (full) dino.txt model can be loaded via PyTorch Hub:
 import torch
 # DINOv3
 dinov3_vitl16_dinotxt_tet1280d20h24l, tokenizer = torch.hub.load(REPO_DIR, 'dinov3_vitl16_dinotxt_tet1280d20h24l', weights=<SEGMENTOR/CHECKPOINT/URL/OR/PATH>, backbone_weights=<BACKBONE/CHECKPOINT/URL/OR/PATH>)
-```
-
-
-## Installation
-
-The training and evaluation code requires PyTorch version >= 2.7.1 as well as a few other 3rd party packages. Note that the code has only been tested with the specified versions and also expects a Linux environment. To setup all the required dependencies for training and evaluation, please follow the instructions below:
-
-*[micromamba](https://mamba.readthedocs.io/en/latest/user_guide/micromamba.html)* **(Recommended)** - Clone the repository and then create and activate a `dinov3` conda environment using the provided environment definition:
-
-```shell
-micromamba env create -f conda.yaml
-micromamba activate dinov3
-```
-
-## Getting started
-
-Several notebooks are provided to get started applying DINOv3:
-- [PCA of patch features](notebooks/pca.ipynb): display the PCA of DINOv3 patch features on a foreground object (rainbow visualizations from the paper) [[Run in Google Colab]](https://colab.research.google.com/github/facebookresearch/dinov3/blob/main/notebooks/pca.ipynb)
-- [Foreground segmentation](notebooks/foreground_segmentation.ipynb): train a linear foreground segmentation model based on DINOv3 features [[Run in Google Colab]](https://colab.research.google.com/github/facebookresearch/dinov3/blob/main/notebooks/foreground_segmentation.ipynb)
-- [Dense and sparse matching](notebooks/dense_sparse_matching.ipynb): match patches from objects on two different images based on DINOv3 features [[Run in Google Colab]](https://colab.research.google.com/github/facebookresearch/dinov3/blob/main/notebooks/dense_sparse_matching.ipynb)
-- [Segmentation tracking](notebooks/segmentation_tracking.ipynb): video segmentation tracking using a non-parametric method based on DINOv3 features [[Run in Google Colab]](https://colab.research.google.com/github/facebookresearch/dinov3/blob/main/notebooks/segmentation_tracking.ipynb)
-
-## Data preparation
-
-### ImageNet-1k
-
-The root directory of the dataset should hold the following contents:
-
-- `<ROOT>/test/ILSVRC2012_test_00000001.JPEG`
-- `<ROOT>/test/[..]`
-- `<ROOT>/test/ILSVRC2012_test_00100000.JPEG`
-- `<ROOT>/train/n01440764/n01440764_10026.JPEG`
-- `<ROOT>/train/[...]`
-- `<ROOT>/train/n15075141/n15075141_9993.JPEG`
-- `<ROOT>/val/n01440764/ILSVRC2012_val_00000293.JPEG`
-- `<ROOT>/val/[...]`
-- `<ROOT>/val/n15075141/ILSVRC2012_val_00049174.JPEG`
-- `<ROOT>/labels.txt`
-
-The provided dataset implementation expects a few additional metadata files to be present under the extra directory:
-
-- `<EXTRA>/class-ids-TRAIN.npy`
-- `<EXTRA>/class-ids-VAL.npy`
-- `<EXTRA>/class-names-TRAIN.npy`
-- `<EXTRA>/class-names-VAL.npy`
-- `<EXTRA>/entries-TEST.npy`
-- `<EXTRA>/entries-TRAIN.npy`
-- `<EXTRA>/entries-VAL.npy`
-
-These metadata files can be generated (once) with the following lines of Python code:
-
-```python
-from dinov3.data.datasets import ImageNet
-
-for split in ImageNet.Split:
-    dataset = ImageNet(split=split, root="<ROOT>", extra="<EXTRA>")
-    dataset.dump_extra()
-```
-
-Note that the root and extra directories do not have to be distinct directories.
-
-### ImageNet-22k
-
-Please adapt the [dataset class](dinov3/data/datasets/image_net_22k.py) to match your local setup.
-
-<br />
-
-:warning: To execute the commands provided in the next sections for training and evaluation, the `dinov3` package should be included in the Python module search path, i.e. simply prefix the command to run with `PYTHONPATH=.`.
-
-## Training
-
-### Fast setup: training DINOv3 ViT-L/16 on ImageNet-1k
-
-Run DINOv3 pre-training on 4 H100-80GB nodes (32 GPUs) in a SLURM cluster environment with submitit:
-
-```shell
- PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/train/train.py \
-  --nodes 4 \
-  --config-file dinov3/configs/train/vitl_im1k_lin834.yaml \
-  --output-dir <PATH/TO/OUTPUT/DIR> \
-  train.dataset_path=ImageNet22k:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET>
-```
-Training time is approximately 14 hours and the resulting checkpoint should reach 82.0% on k-NN eval and 83.5% on linear eval.
-
-The training code saves the weights of the teacher in the eval folder every 12500 iterations for evaluation.
-
-### Exact DINOv3 setup: training DINOv3 ViT-7B/16
-
-DINOv3 ViT-7B/16 is trained on a private dataset. The training involves 3 stages:
-- Pretraining
-- Gram anchoring
-- High resolution adaptation
-
-#### Pretraining
-
-Launch DINOV3 ViT-7B/16 pretraining on 32 nodes (256 GPUs) in a SLURM cluster environment with submitit.
-
-```shell
-PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/train/train.py \
-  --nodes 32 \
-  --config-file dinov3/configs/train/dinov3_vit7b16_pretrain.yaml \
-  --output-dir <PATH/TO/OUTPUT/DIR> \
-  train.dataset_path=<DATASET>:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET>
-```
-
-#### Gram anchoring
-
-```shell
-PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/train/train.py \
-  --nodes 32 \
-  --config-file dinov3/configs/train/dinov3_vit7b16_gram_anchor.yaml \
-  --output-dir <PATH/TO/OUTPUT/DIR> \
-  train.dataset_path=<DATASET>:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET> \
-  gram.ckpt=<PATH/TO/GRAM_TEACHER_FROM_PREVIOUS_STEP>   
-```
-
-#### High-resolution adaptation
-
-
-```shell
-PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/train/train.py \
-  --nodes 32 \
-  --config-file dinov3/configs/train/dinov3_vit7b16_high_res_adapt.yaml \
-  --output-dir <PATH/TO/OUTPUT/DIR> \
-  train.dataset_path=<DATASET>:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET> \
-  gram.ckpt=<PATH/TO/TEACHER_FROM_GRAM> \
-  student.resume_from_teacher_chkpt=<PATH/TO/TEACHER_FROM_GRAM>
-```
-
-## Multi-distillation 
-
-### Test setup:
-
-```shell
-PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/train/train.py \
-  --nodes 1 \
-  --config-file dinov3/configs/train/multi_distillation_test.yaml \
-  --output-dir <PATH/TO/OUTPUT/DIR> \
-  --multi-distillation \
-  train.dataset_path=<DATASET>:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET>
-```
-
-## Evaluation
-
-The training code regularly saves the teacher weights. In order to evaluate the model, run the following evaluation on a single node:
-
-
-### Logistic regression classification on ImageNet-1k
-
-```shell
-PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/eval/log_regression.py \
-  model.config_file=<PATH/TO/OUTPUT/DIR>/config.yaml \
-  model.pretrained_weights=<PATH/TO/OUTPUT/DIR>/teacher_checkpoint.pth \
-  output_dir=<PATH/TO/OUTPUT/DIR> \
-  train.dataset=ImageNet:split=TRAIN:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET> \
-  eval.test_dataset=ImageNet:split=VAL:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET>
-```
-
-### k-NN classification on ImageNet-1k
-
-```shell
-PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/eval/knn.py \
-  model.config_file=<PATH/TO/OUTPUT/DIR>/config.yaml \
-  model.pretrained_weights=<PATH/TO/OUTPUT/DIR>/teacher_checkpoint.pth \
-  output_dir=<PATH/TO/OUTPUT/DIR> \
-  train.dataset=ImageNet:split=TRAIN:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET> \
-  eval.test_dataset=ImageNet:split=VAL:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET>
-```
-
-### Linear classification with data augmentation on ImageNet-1k
-
-```shell
-PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/eval/linear.py \
-  model.config_file=<PATH/TO/OUTPUT/DIR>/config.yaml \
-  model.pretrained_weights=<PATH/TO/OUTPUT/DIR>/teacher_checkpoint.pth \
-  output_dir=<PATH/TO/OUTPUT/DIR> \
-  train.dataset=ImageNet:split=TRAIN:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET> \
-  train.val_dataset=ImageNet:split=VAL:root=<PATH/TO/DATASET>:extra=<PATH/TO/DATASET>
-```
-
-
-### Text alignment on DINOv3 using dino.txt
-
-Text alignment can be done following the method from `dino.txt` aka [DINOv2 Meets Text](https://arxiv.org/abs/2412.16334).
-
-```shell
-PYTHONPATH=${PWD} python -m dinov3.run.submit dinov3/eval/text/train_dinotxt.py \
-   --nodes 4 \
-  # An example config for text alignment is here: dinov3/eval/text/configs/dinov3_vitl_text.yaml \ 
-  trainer_config_file="<PATH/TO/DINOv3/TEXT/CONFIG>" \
-  output-dir=<PATH/TO/OUTPUT/DIR>
-```
-Launching the above trains text alignment on 4 nodes with 8 gpus each (32 gpus in total).
-Please note that the text alignment model in the DINOv3 paper was trained on a private dataset and here we have given an example config in ```dinov3/eval/text/configs/dinov3_vitl_text.yaml``` using ```CocoCaptions``` dataset for illustration purposes.
-Please adapt the provided ```CocoCaptions``` dataset class, the dataset can be found [here](https://www.kaggle.com/datasets/nikhil7280/coco-image-caption)  
-
-## License
-
-DINOv3 code and model weights are released under the DINOv3 License. See [LICENSE.md](LICENSE.md) for additional details.
-
-## Contributing
-
-See [contributing](CONTRIBUTING.md) and the [code of conduct](CODE_OF_CONDUCT.md).
-
-## Citing DINOv3
-
-If you find this repository useful, please consider giving a star :star: and citation :t-rex::
-
-```
-@misc{simeoni2025dinov3,
-  title={{DINOv3}},
-  author={Sim{\'e}oni, Oriane and Vo, Huy V. and Seitzer, Maximilian and Baldassarre, Federico and Oquab, Maxime and Jose, Cijo and Khalidov, Vasil and Szafraniec, Marc and Yi, Seungeun and Ramamonjisoa, Micha{\"e}l and Massa, Francisco and Haziza, Daniel and Wehrstedt, Luca and Wang, Jianyuan and Darcet, Timoth{\'e}e and Moutakanni, Th{\'e}o and Sentana, Leonel and Roberts, Claire and Vedaldi, Andrea and Tolan, Jamie and Brandt, John and Couprie, Camille and Mairal, Julien and J{\'e}gou, Herv{\'e} and Labatut, Patrick and Bojanowski, Piotr},
-  year={2025},
-  eprint={2508.10104},
-  archivePrefix={arXiv},
-  primaryClass={cs.CV},
-  url={https://arxiv.org/abs/2508.10104},
-}
 ```

@@ -7,3 +7,5 @@ termcolor
 torch
 torchmetrics
 torchvision
+opencv-python
+imageio[ffmpeg]

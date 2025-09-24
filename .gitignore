@@ -16,3 +16,4 @@ dist/
 
 # Ignore vscode directory
 .vscode/
+dinov3_venv/
