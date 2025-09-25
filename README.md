@@ -13,6 +13,9 @@
 
 An extended family of versatile vision foundation models producing high-quality dense features and achieving outstanding performance on various vision tasks including outperforming the specialized state of the art across a broad range of settings, without fine-tuning.
 
+## Requirements
+This work has been tested on ubuntu 24.04, Nvidia RTX 4070, GPU Driver 570, Cuda 12.8 and Python 3.12.
+
 
 ## Installation
 
@@ -58,6 +61,7 @@ python demo_tracker.py \
   --radius 1 \
   --save_video
 ```
+The script `demo_tracker.py` was created based on the [Segmentation Tracking](notebooks/segmentation_tracking.ipynb) demo.
 
 ## Results
 
